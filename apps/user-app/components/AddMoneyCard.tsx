@@ -63,7 +63,7 @@ export const AddMoney = () => {
             onClick={async () => {
               try {
                 const result = await createOnRampTransaction(
-                  amount,
+                  amount*100,
                   provider
                 );
                 if (result.message === "User not logged in") {
