@@ -2,7 +2,6 @@
 
 import { Button } from "@repo/ui/button";
 import { Card } from "@repo/ui/card";
-import { Center } from "@repo/ui/center";
 import { Select } from "@repo/ui/select";
 import { TextInput } from "@repo/ui/textinput";
 import { createOnRampTransaction } from "../app/lib/actions/createOnRamptxn";
@@ -21,30 +20,46 @@ const SUPPORTED_BANKS = [
 
 export const AddMoney = () => {
   const [redirectUrl, setRedirectUrl] = useState(
-    SUPPORTED_BANKS[0]?.redirectUrl
+    "http://localhost:3000/pay-money" // Default URL; make sure to pass this from the environment
   );
-  const [amount, setAmount] = useState(0);
   const [provider, setProvider] = useState(SUPPORTED_BANKS[0]?.name || "");
+  const [value, setValue] = useState<number>(0);
+
+  const handleOnClick = async () => {
+    try {
+      const res = await createOnRampTransaction(value, provider);
+      console.log("RES:", res);
+      console.log("res.token--->", res?.transaction?.token);
+      if (res?.transaction?.token) {
+        // Redirect to the bank with the token in the query string
+        window.location.href = `${redirectUrl}?token=${res.transaction.token}`;
+        console.log(`Redirecting to: ${redirectUrl}?token=${res.transaction.token}`);
+
+      } else {
+        alert("Failed to create transaction. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error creating transaction:", error);
+      alert("An error occurred. Please try again.");
+    }
+  };
 
   return (
     <Card title="Add Money">
       <div className="w-full">
         <TextInput
           label={"Amount"}
-          placeholder={"Amount"}
-          onChange={(value) => {
-            setAmount(Number(value));
+          placeholder={"Enter Amount"}
+          onChange={(val) => {
+            setValue(Number(val));
           }}
         />
         <div className="py-4 text-left">Bank</div>
         <Select
           onSelect={(value) => {
-            setRedirectUrl(
-              SUPPORTED_BANKS.find((x) => x.name === value)?.redirectUrl || ""
-            );
-            setProvider(
-              SUPPORTED_BANKS.find((x) => x.name === value)?.name || ""
-            );
+            const selectedBank = SUPPORTED_BANKS.find((x) => x.name === value);
+            setRedirectUrl(selectedBank?.redirectUrl || "");
+            setProvider(selectedBank?.name || "");
           }}
           options={SUPPORTED_BANKS.map((x) => ({
             key: x.name,
@@ -52,35 +67,7 @@ export const AddMoney = () => {
           }))}
         />
         <div className="flex justify-center pt-4">
-          {/* <Button onClick={async () => {
-                await createOnRampTransaction(amount*100, provider)
-                window.location.href = redirectUrl || "";
-            }}>
-            Add Money
-            </Button> */}
-
-          <Button
-            onClick={async () => {
-              try {
-                const result = await createOnRampTransaction(
-                  amount*100,
-                  provider
-                );
-                if (result.message === "User not logged in") {
-                  // Handle not logged in case
-                  alert("Please log in to continue");
-                  return;
-                }
-                // Only redirect if transaction was successful
-                window.location.href = redirectUrl || "";
-              } catch (error) {
-                console.error("Error creating transaction:", error);
-                alert("Failed to process transaction");
-              }
-            }}
-          >
-            Add Money
-          </Button>
+          <Button onClick={handleOnClick}>Add Money</Button>
         </div>
       </div>
     </Card>

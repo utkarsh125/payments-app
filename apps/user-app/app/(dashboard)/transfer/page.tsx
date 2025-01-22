@@ -19,8 +19,8 @@ interface OnRampTransaction {
 
 async function getBalance(): Promise<Balance> {
     const session = await getServerSession(authOptions);
-    console.log(session.user.id);
     console.log(session);
+    // console.log(session.user.id);
     const balance = await prisma.balance.findFirst({
         where: {
             // userId: Number(session?.user?.id)
