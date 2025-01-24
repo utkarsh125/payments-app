@@ -27,8 +27,11 @@ export async function cancelPayment(token: string | undefined) {
     };
 
     // Send the cancellation request to the webhook
-    const response = await axios.post(process.env.BANK_WEBHOOK || "", payload);
 
+    console.log("Sending cancel payload to webhook:", payload);
+
+    const response = await axios.post(process.env.BANK_WEBHOOK || "", payload);
+    // console.log("cancelPayment.ts hook: ", response);
     if (response.status !== 200) {
       console.error("Webhook returned an error:", response.data);
       return {

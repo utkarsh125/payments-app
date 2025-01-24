@@ -26,9 +26,11 @@ export async function validatePayment(token: string | undefined) {
       paymentStatus: "success",
     };
 
+    console.log("Sending payload to webhook:", payload.paymentStatus);
+
     // Send the validation request to the webhook
     const response = await axios.post(process.env.BANK_WEBHOOK || "", payload);
-
+    console.log("Webhook Response FOR Validation: ", response.data, response.status);
     if (response.status !== 200) {
       console.error("Webhook returned an error:", response.data);
       return {

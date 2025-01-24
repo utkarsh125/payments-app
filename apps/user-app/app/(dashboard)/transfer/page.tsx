@@ -19,21 +19,26 @@ interface OnRampTransaction {
 
 async function getBalance(): Promise<Balance> {
     const session = await getServerSession(authOptions);
-    console.log(session);
-    // console.log(session.user.id);
+    console.log("Session: ", session);
+
+    if (!session?.user?.id) {
+        console.error("No user ID found in session.");
+        return { amount: 0, locked: 0 };
+    }
+
     const balance = await prisma.balance.findFirst({
         where: {
-            // userId: Number(session?.user?.id)
-            userId: 4
-        }
+            userId: Number(session.user.id), // Dynamically fetch balance for logged-in user
+        },
     });
-    
-    console.log("Balance in db ", balance);
+
+    console.log("Balance in db:", balance);
     return {
         amount: balance?.amount || 0,
-        locked: balance?.locked || 0
-    }
+        locked: balance?.locked || 0,
+    };
 }
+
 
 async function getOnRampTransactions(): Promise<OnRampTransaction[]> {
     const session = await getServerSession(authOptions);
@@ -55,7 +60,7 @@ export default async function () {
     const balance = await getBalance();
     const transactions = await getOnRampTransactions();
 
-    console.log(balance);
+    console.log("Balance: ", balance);
     console.log(transactions);
 
     return <div className="w-screen">
