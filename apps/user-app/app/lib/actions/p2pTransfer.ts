@@ -9,7 +9,7 @@ export async function p2pTransfer(to: string, amount: number) {
     const session = await getServerSession(authOptions);
     const from = session?.user?.id;
 
-    console.log("p2pTransfer for CI/CD");
+    console.log("Testing CI/CD");
 
     if (!from) {
         return {
