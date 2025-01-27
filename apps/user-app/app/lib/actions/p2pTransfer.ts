@@ -1,5 +1,6 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import { authOptions } from "../auth";
 import { getServerSession } from "next-auth";
 import prisma from "@repo/db/client";
@@ -29,7 +30,7 @@ export async function p2pTransfer(to: string, amount: number) {
     }
 
     try {
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             // Lock both sender and receiver balances
             await tx.$queryRaw`SELECT * FROM "Balance" WHERE "userId" IN (${Number(from)}, ${toUser.id}) FOR UPDATE`;
 
