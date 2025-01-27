@@ -1,70 +1,86 @@
-"use server"
+"use server";
 
 import { authOptions } from "../auth";
 import { getServerSession } from "next-auth";
 import prisma from "@repo/db/client";
-import { timeStamp } from "console";
 
 export async function p2pTransfer(to: string, amount: number) {
-    
     const session = await getServerSession(authOptions);
-    const from = session?.user?.id; 
+    const from = session?.user?.id;
+
     if (!from) {
         return {
-            message: "Error while sending"
-        }
+            status: "error",
+            message: "Error while sending. Please log in again.",
+        };
     }
+
     const toUser = await prisma.user.findFirst({
         where: {
-            number: to
-        }
+            number: to,
+        },
     });
 
     if (!toUser) {
         return {
-            message: "User not found"
-        }
+            status: "error",
+            message: "User not found",
+        };
     }
-    await prisma.$transaction(async (tx) => {
 
-        //Multiple transactions at same time can cause money to be deducted twice
-        //which can result in negative balance error
-        //so we have to lock the DB after the first request for that specific UserId
-        await tx.$queryRaw`SELECT * FROM "Balance" WHERE "userId" = ${Number(from)} FOR UPDATE`;
-        const fromBalance = await tx.balance.findUnique({
-            where: { userId: Number(from) },
-          });
-          if (!fromBalance || fromBalance.amount < amount) {
-            throw new Error('Insufficient funds');
-          }
+    try {
+        await prisma.$transaction(async (tx) => {
+            // Lock both sender and receiver balances
+            await tx.$queryRaw`SELECT * FROM "Balance" WHERE "userId" IN (${Number(from)}, ${toUser.id}) FOR UPDATE`;
 
-          await tx.balance.update({ 
-            where: { 
-                userId: Number(from) 
-            },
-            data: { 
-                amount: { decrement: amount } 
-            },
-          });
+            const fromBalance = await tx.balance.findUnique({
+                where: { userId: Number(from) },
+            });
 
-          await tx.balance.update({
-            where: { 
-                userId: toUser.id 
-            },
-            data: { 
-                amount: { increment: amount } 
-            },
-          });
-
-          await tx.p2pTransfer.create({
-            data: {
-                fromUserId: Number(from),
-                toUserId: toUser.id,
-                amount,
-                timestamp: new Date()
+            if (!fromBalance || fromBalance.amount < amount) {
+                throw new Error("Insufficient funds");
             }
-          })
 
-          //LOCKING
-    });
+            // Deduct from sender's balance
+            await tx.balance.update({
+                where: { userId: Number(from) },
+                data: { amount: { decrement: amount } },
+            });
+
+            // Add to receiver's balance
+            await tx.balance.update({
+                where: { userId: toUser.id },
+                data: { amount: { increment: amount } },
+            });
+
+            // Log the transaction
+            await tx.p2pTransfer.create({
+                data: {
+                    fromUserId: Number(from),
+                    toUserId: toUser.id,
+                    amount,
+                    timestamp: new Date(),
+                },
+            });
+        });
+
+        return {
+            status: "success",
+            message: "Money sent successfully",
+        };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+        if (errorMessage === "Insufficient funds") {
+            return {
+                status: "error",
+                message: "Insufficient Balance in wallet. Do you want to top-up now?",
+                redirect: "/(dashboard)/transfer",
+            };
+        }
+
+        return {
+            status: "error",
+            message: errorMessage,
+        };
+    }
 }

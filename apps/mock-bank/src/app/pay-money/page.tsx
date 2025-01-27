@@ -51,6 +51,10 @@ const PayMoneyContent = () => {
   const handleCancel = async () => {
     setLoading(true);
     try {
+
+      if(!token){
+        throw new Error('Token is required');
+      }
       await cancelPayment(token);
       window.location.href = process.env.NEXT_PUBLIC_REDIRECT_URL || '';
     } catch (err) {
@@ -64,6 +68,10 @@ const PayMoneyContent = () => {
   const handlePayment = async () => {
     setLoading(true);
     try {
+
+      if(!token){
+        throw new Error('Token is required');
+      }
       await validatePayment(token);
       window.location.href = process.env.NEXT_PUBLIC_REDIRECT_URL || '';
     } catch (err) {
@@ -86,12 +94,15 @@ const PayMoneyContent = () => {
           You are about to pay <span className="font-bold text-blue-600">₹{amount}</span> to
           Payments Wallet.
         </p>
-
+        
+        
         <Card title={'Netbanking Portal'} className="p-6 bg-gray-50 border border-gray-300">
           <div className="mb-4">
+            
             <TextInput
               label={'Account Number'}
               placeholder={'Enter your account number'}
+              //@ts-ignore
               value={accountNumber}
               onChange={(val) => setAccountNumber(Number(val))}
               disabled
@@ -102,6 +113,7 @@ const PayMoneyContent = () => {
             <TextInput
               label={'Netbanking Password'}
               placeholder={'Enter your password'}
+              //@ts-ignore
               value={password}
               onChange={(val) => setPassword(val)}
               disabled
@@ -117,14 +129,14 @@ const PayMoneyContent = () => {
                 <Button
                   onClick={handleCancel}
                   disabled={loading}
-                  className="bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600 text-gray-100"
+                  className=" px-4 py-2 rounded-lg hover:bg-red-500 text-gray-100"
                 >
-                  <p className='text-red-500'>Cancel</p>
+                  <p className='text-red-500 hover:text-white'>Cancel</p>
                 </Button>
                 <Button
                   onClick={handlePayment}
                   disabled={loading}
-                  className="!bg-green-500 px-4 py-2 rounded-lg hover:bg-green-600 text-gray-100"
+                  className="px-4 py-2 rounded-lg hover:bg-gray-800 text-gray-100"
                 >
                   <p className='text-blue-500'>
                     Pay Now
