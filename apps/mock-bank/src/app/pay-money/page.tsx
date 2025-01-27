@@ -14,6 +14,7 @@ const PayMoneyContent = () => {
   const [accountNumber, setAccountNumber] = useState(1234567890);
   const [password, setPassword] = useState('netbanking-password');
   const [userId, setUserId] = useState('');
+  console.log(userId);
   const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -102,10 +103,10 @@ const PayMoneyContent = () => {
             <TextInput
               label={'Account Number'}
               placeholder={'Enter your account number'}
-              //@ts-ignore
-              value={accountNumber}
+
+              value={accountNumber.toString()}
               onChange={(val) => setAccountNumber(Number(val))}
-              disabled
+              disabled={loading}
               className="bg-gray-100"
             />
           </div>
@@ -113,10 +114,10 @@ const PayMoneyContent = () => {
             <TextInput
               label={'Netbanking Password'}
               placeholder={'Enter your password'}
-              //@ts-ignore
+
               value={password}
               onChange={(val) => setPassword(val)}
-              disabled
+              disabled={loading}
               className="bg-gray-100"
               type="password"
             />
@@ -150,8 +151,8 @@ const PayMoneyContent = () => {
       </div>
 
       <div className="w-full text-center mt-6 text-sm text-gray-500">
-        <p>*This is a mock netbanking portal for testing purposes.</p>
-        <p>Testers can click "Pay Now" to complete the transaction.</p>
+        <p>This is a mock netbanking portal completely for testing purposes.</p>
+        <p>Testers can click &apos;Pay Now&apos; to complete the transaction.</p>
       </div>
     </div>
   );
