@@ -1,4 +1,4 @@
-# Payments App
+# [wip]payments
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Postgres](https://img.shields.io/badge/Postgres-336791?style=for-the-badge&logo=postgresql&logoColor=white)
@@ -9,7 +9,9 @@
 ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
 ![Zod](https://img.shields.io/badge/Zod-3178C6?style=for-the-badge&logo=zod&logoColor=white)
 ![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white)
-![Amazon EC2](https://img.shields.io/badge/Amazon%20S3-FF9900?style=for-the-badge&logo=amazondec2&logoColor=white)
+![Amazon EC2](https://img.shields.io/badge/Amazon%20EC2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white)
+![NGINX](https://img.shields.io/badge/NGINX-269539?style=for-the-badge&logo=nginx&logoColor=white)
+
 
 A robust payment processing application designed with a modern tech stack. It uses Postgres as the database, Prisma for ORM, and Next.js for the frontend, all managed in a monorepo structure with TurboRepo.
 
@@ -52,4 +54,6 @@ Ensure you have the following installed:
 ### Important Todos
 - Deployment fix for EC2
 - Reverse Proxy using NGINX
-- CI/CD Pipeline 
+- ~~Continuous Integration Pipeline~~
+- ~~Purge Merchant App~~
+- Continous Deployment Pipeline
