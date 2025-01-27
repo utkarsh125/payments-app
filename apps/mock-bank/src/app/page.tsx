@@ -5,3 +5,5 @@ export default function Home() {
     redirect('/pay-money')
   );
 }
+
+console.log('This will be executed')
